@@ -23,7 +23,10 @@ void quelques_prints (void)
 
 void rediriger_vers (void (*f)(void), char *file)
 {
-  // A COMPLETER
+  int m = open(file,O_WRONLY | O_TRUNC |O_CREAT , 0640); // 640 = droit : user 110 grp 100 other 000
+  verifier(m != -1, "redirection erreur");
+
+  dup2(m, f);
 }
 
 int main(int argc, char *argv[])
