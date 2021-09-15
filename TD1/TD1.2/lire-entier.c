@@ -19,28 +19,28 @@ int main(int argc, char **argv)
 {
     int err = open("ERREURS-LIRE.log",O_WRONLY | O_TRUNC |O_CREAT , 0640); // 640 = droit : user 110 grp 100 other 000
     verifier(err != -1, "redirection erreur");
-
     dup2(err, STDERR_FILENO);
 
     verifier(argc == 3, "argc");
     int in = open(argv[1],O_RDONLY);
     verifier(in != -1, argv[1]);
 
-    int pos = atoi(argv[2]);
+    off_t pos = atoi(argv[2]);
 
-    lseek (in, pos, SEEK_CUR);
+    int n = lseek (in, pos*sizeof(pos), SEEK_SET);
+    verifier(n != -1, "lseek");
 
-    int r,w;
-    while((r=read(in,c,1))!=0){// 0 = lecture clavier, 1 = sortie, 2 = erreur
-        w = write(1,c,1);
-        verifier(w==1,"write out");
-    }
+    off_t val;
+    int r=read(in,&val,sizeof(val));
+    verifier(r==sizeof(val),"read");
 
-    verifier(r==0,"read");
+    printf("nb : %ld\n",val);
+
     int d = close(in);
     verifier(d!=-1,"close");
 
-    close(err);
+    int e = close(err);
+    verifier(e!=-1,"close2");
 
     return EXIT_SUCCESS;
 }

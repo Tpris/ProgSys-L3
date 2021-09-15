@@ -28,5 +28,32 @@ int main(int argc, char *argv[]){
 
   //...
 
+  int in = open(argv[1],O_RDONLY);
+  verifier(in != -1, argv[1]);
+
+  int index = open(idx_filename,O_WRONLY |O_CREAT , 0640); // 640 = droit : user 110 grp 100 other 000
+  verifier(index != -1, "IDX");
+
+  off_t pos = atoi(argv[2]);
+  off_t ligne;
+
+  if(pos>1){
+  lseek(index,(pos-2)*sizeof(ligne),SEEK_SET);
+  }
+  read(index, &ligne, sizeof(ligne));
+  lseek(in, ligne+1, SEEK_SET);
+
+  char c; 
+  int r,w;
+  while((r=read(in,&c,1))>0 && c!='\n'){
+    putchar(c);
+  }
+
+  verifier(r==0,"read");
+  int d = close(index);
+  verifier(d!=-1,"close");
+  int dd = close(in);
+  verifier(dd!=-1,"close2");
+
   return EXIT_SUCCESS;
 }
