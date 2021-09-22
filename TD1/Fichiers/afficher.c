@@ -37,16 +37,17 @@ int main(int argc, char *argv[]){
   off_t pos = atoi(argv[2]);
   off_t ligne;
 
-  if(pos>1){
-  lseek(index,(pos-2)*sizeof(ligne),SEEK_SET);
-  }
-  read(index, &ligne, sizeof(ligne));
-  lseek(in, ligne+1, SEEK_SET);
+  
+  read(index, &ligne, sizeof(ligne)); // initialise ligne
+  //if(pos>1){
+  lseek(index,(pos/*-2*/)*sizeof(ligne),SEEK_SET);
+  //}
+  lseek(in, ligne, SEEK_SET); //correction avec ligne+1 ???
 
-  char c; 
-  int r,w;
-  while((r=read(in,&c,1))>0 && c!='\n'){
-    putchar(c);
+  char c[1]; 
+  int r;
+  while((r=read(in,c,1))>0 && *c!='\n'){
+    putchar(*c);
   }
 
   verifier(r==0,"read");

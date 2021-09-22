@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    fd = open("fich", O_WRONLY | O_CREAT, 0666);
+    fd = open("fich", O_WRONLY | O_CREAT, 0666); 
 
     for (i = atoi(argv[1]); i < 10; i += 2)
     {
@@ -25,4 +25,10 @@ int main(int argc, char *argv[])
 
     close(fd);
     return 0;
+
+    /**
+     * simultané : marche toujours car 2 open -> 2 têtes de lecture
+     * 
+     * 
+     **/
 }

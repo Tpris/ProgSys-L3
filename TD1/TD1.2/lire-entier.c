@@ -17,9 +17,11 @@ char c[1];
 
 int main(int argc, char **argv)
 {
-    int err = open("ERREURS-LIRE.log",O_WRONLY | O_TRUNC |O_CREAT , 0640); // 640 = droit : user 110 grp 100 other 000
+    int err = open("ERREURS-LIRE.log",O_WRONLY |O_CREAT , 0640); // 640 = droit : user 110 grp 100 other 000
     verifier(err != -1, "redirection erreur");
     dup2(err, STDERR_FILENO);
+    int e = close(err);
+    verifier(e!=-1,"close2");
 
     verifier(argc == 3, "argc");
     int in = open(argv[1],O_RDONLY);
@@ -38,9 +40,6 @@ int main(int argc, char **argv)
 
     int d = close(in);
     verifier(d!=-1,"close");
-
-    int e = close(err);
-    verifier(e!=-1,"close2");
 
     return EXIT_SUCCESS;
 }

@@ -20,40 +20,90 @@ void verifier(int cond, char *s)
 
 int main(int argc, char **argv)
 {
-    pid_t pid = fork();
-    if (pid)
-    { // father
-        pprintf("je m'appelle %d et je suis le père de %d\n",getpid(), pid);
-        wait(0);
-    }
-    else
-    { // Child
-        pprintf("je m'appelle %d et je suis le père de %d\n", getpid(), getppid());
-    }
-/*
-    //Fils zombie
-    pid_t pid = fork();
-    if (!pid)
-    { // child
-        pprintf("je m'appelle %d et je suis le père de %d\n", getpid(), getppid());
-        wait(0);
-    }
-    else
-    { // father
-        pprintf("je m'appelle %d et je suis le père de %d\n",getpid(), pid);
-    }
+    // pid_t pid = fork();
+    // if (pid)
+    // { // father
+    //     wait(0);
+    //     printf("je m'appelle %d et je suis le père de %d\n",getpid(), pid);
+    // }
+    // else
+    // { // Child
+    //     printf("je m'appelle %d et je suis le fils de %d\n", getpid(), getppid());
+    // }
+
+    // //Fils zombie
+    // pid_t pid = fork();
+    // if (pid)
+    // { // father
+    //     getchar();
+    //     printf("je m'appelle %d et je suis le père de %d\n",getpid(), pid);
+    // }
+    // else
+    // { // Child
+    //     printf("je m'appelle %d et je suis le fils de %d\n", getpid(), getppid());
+    // }
+
+    /**
+     * run
+     * |
+     * fork
+     * |    \
+     * |        \
+     * getchar()  printf()
+     * |            |
+     * |          exit()
+     * |            |
+     * |          Zombie
+     * printf
+     * 
+     * 
+     **/
 
 
     //Orphenlin
     pid_t pid = fork();
     if (pid)
     { // father
-        pprintf("je m'appelle %d et je suis le père de %d\n",getpid(), pid);
+        printf("je m'appelle %d et je suis le père de %d\n",getpid(), pid);
     }
     else
     { // Child
-        pprintf("je m'appelle %d et je suis le père de %d\n", getpid(), getppid());
+        getchar();
+        printf("je m'appelle %d et je suis le fils de %d\n", getpid(), getppid());
     }
-*/
     return 0;
+
+    /**
+     * run
+     * |
+     * fork
+     * |    \
+     * |        \
+     * |          getchar()
+     * |          printf()
+     * |            |
+     * |          exit()
+     * |            |
+     * |          Zombie
+     * printf
+     * 
+     * 
+     * ./a.out
+     * A pere de B
+     * prompt [appuyer sur entrer] 
+     * B fils de X
+     * 
+     * shell
+     * |
+     * fork
+     * |    \
+     * |        \
+     * |          pere
+     * wait       prompt
+     * |            /\
+     * |        exit() \
+     * |        /       \         
+     * printf---        
+     * 
+     **/
 }
