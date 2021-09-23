@@ -39,7 +39,6 @@ int main(int argc, char *argv[]){
   off_t pos = 0;
   write(index, &pos,sizeof(pos));
   write(index, &pos,sizeof(pos));
-  //while((r=read(in,c,1))!=0){// 0 = lecture clavier, 1 = sortie, 2 = erreur
   for(off_t pos = 0; (r=read(in, c, 1)) > 0; pos++){
       if(*c=='\n'){
         w = write(index,&pos,sizeof(pos));

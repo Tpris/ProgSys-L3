@@ -31,30 +31,37 @@ int main(int argc, char *argv[]){
   int in = open(argv[1],O_RDONLY);
   verifier(in != -1, argv[1]);
 
-  int index = open(idx_filename,O_WRONLY |O_CREAT , 0640); // 640 = droit : user 110 grp 100 other 000
-  verifier(index != -1, "IDX");
-
   off_t pos = atoi(argv[2]);
   off_t ligne;
 
   
-  read(index, &ligne, sizeof(ligne)); // initialise ligne
-  //if(pos>1){
-  lseek(index,(pos/*-2*/)*sizeof(ligne),SEEK_SET);
-  //}
-  lseek(in, ligne, SEEK_SET); //correction avec ligne+1 ???
-
+  read(in, &ligne, sizeof(ligne)); // initialise ligne
+  //printf("Ligne : %ld",sizeof(ligne));
+  
   char c[1]; 
   int r;
+  int cpt = 0;
+  int size = 0;
+  while((r=read(in,c,1))>0 && cpt<pos){
+    if(*c=='\n') cpt++;
+    size++;
+  }
+  
+  //if(pos>1){
+  //lseek(in,(pos/*-2*/)*sizeof(ligne),SEEK_SET);
+  lseek(in,size,SEEK_SET);
+  //}
+  //lseek(in, ligne+1, SEEK_SET); //correction avec ligne+1 ???
+
+  // char c[1]; 
+  // int r;
   while((r=read(in,c,1))>0 && *c!='\n'){
     putchar(*c);
   }
 
-  verifier(r==0,"read");
-  int d = close(index);
-  verifier(d!=-1,"close");
-  int dd = close(in);
-  verifier(dd!=-1,"close2");
+  verifier(r!=-1,"read");
+  int cl = close(in);
+  verifier(cl!=-1,"close2");
 
   return EXIT_SUCCESS;
 }
