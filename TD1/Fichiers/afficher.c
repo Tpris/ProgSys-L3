@@ -32,31 +32,18 @@ int main(int argc, char *argv[]){
   verifier(in != -1, argv[1]);
 
   off_t pos = atoi(argv[2]);
-  off_t ligne;
-
-  
-  //read(in, &ligne, sizeof(ligne)); // initialise ligne
-  //printf("Ligne : %ld",sizeof(ligne));
   
   char c[1]; 
   int r;
   int cpt = 0;
-  int size = 1;
+  int size = 0;
   while((r=read(in,c,1))>0 && cpt<pos){
-    if(*c=='\n') {cpt++; size--;}
+    if(*c=='\n') {cpt++;}
     size++;
-    putchar(*c);
-    printf("--");
   }
   
-  //if(pos>1){
-  //lseek(in,(pos/*-2*/)*sizeof(ligne),SEEK_SET);
   lseek(in,size,SEEK_SET);
-  //}
-  //lseek(in, ligne+1, SEEK_SET); //correction avec ligne+1 ???
 
-  // char c[1]; 
-  // int r;
   while((r=read(in,c,1))>0 && *c!='\n' ){
     putchar(*c);
   }
