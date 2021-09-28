@@ -31,23 +31,22 @@ int main(int argc, char *argv[]){
   int in = open(argv[1],O_RDONLY);
   verifier(in != -1, argv[1]);
 
+  int index = open(idx_filename,O_RDONLY);
+  verifier(index != -1, argv[1]);
+
   off_t pos = atoi(argv[2]);
-  
+  off_t ligne;
+
+  int e =lseek(index,(pos+1)*sizeof(off_t),SEEK_SET);
+  read(index, &ligne, sizeof(ligne)); 
+  if(pos>0) lseek(in, ligne+1, SEEK_SET); 
+
   char c[1]; 
   int r;
-  int cpt = 0;
-  int size = 0;
-  while((r=read(in,c,1))>0 && cpt<pos){
-    if(*c=='\n') {cpt++;}
-    size++;
-  }
-  
-  lseek(in,size,SEEK_SET);
-
   while((r=read(in,c,1))>0 && *c!='\n' ){
     putchar(*c);
   }
-
+  
   verifier(r!=-1,"read");
   int cl = close(in);
   verifier(cl!=-1,"close2");

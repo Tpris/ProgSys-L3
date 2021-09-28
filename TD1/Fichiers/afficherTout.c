@@ -28,7 +28,7 @@ int main(int argc, char *argv[]){
 
   //...
 
-  int in = open(argv[1],O_RDONLY);
+  int in = open(idx_filename,O_RDONLY);
   verifier(in != -1, argv[1]);
 
   off_t pos = atoi(argv[2]);
@@ -36,16 +36,6 @@ int main(int argc, char *argv[]){
 
   
   read(in, &ligne, sizeof(ligne)); // initialise ligne
-  //printf("Ligne : %ld",sizeof(ligne));
-  
-  // char c[1]; 
-  // int r;
-  // int cpt = 0;
-  // int size = 0;
-  // while((r=read(in,c,1))>0 && cpt<pos){
-  //   if(*c=='\n') cpt++;
-  //   size++;
-  // }
   
   //if(pos>1){
   lseek(in,(pos/*-2*/)*sizeof(ligne),SEEK_SET);

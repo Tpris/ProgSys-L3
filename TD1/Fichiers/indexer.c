@@ -31,18 +31,18 @@ int main(int argc, char *argv[]){
   int in = open(argv[1],O_RDONLY);
   verifier(in != -1, argv[1]);
 
-  int index = open(idx_filename,O_WRONLY |O_CREAT , 0640); // 640 = droit : user 110 grp 100 other 000
+  int index = open(idx_filename,O_WRONLY | O_TRUNC |O_CREAT , 0640); // 640 = droit : user 110 grp 100 other 000
   verifier(index != -1, "IDX");
 
-  char c[1];
+  char c;
   int r,w;
+
   off_t pos = 0;
   write(index, &pos,sizeof(pos));
   write(index, &pos,sizeof(pos));
-  for(off_t pos = 0; (r=read(in, c, 1)) > 0; pos++){
-      if(*c=='\n'){
-        w = write(index,&pos,sizeof(pos));
-        //verifier(w==1,"write out");
+  for(off_t pos = 0; (r=read(in, &c, 1)) > 0; pos++){
+      if(c=='\n'){
+        w = write(index, &pos,sizeof(pos));
       }
   }
   verifier(r==0,"read");
