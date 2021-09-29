@@ -17,28 +17,24 @@ void verifier(int cond, char *s)
     }
 }
 
-
+int valeurStatus(int s){
+    if(WIFSIGNALED(s)) return WTERMSIG(s)+128;
+    return WEXITSTATUS (s);
+}
 
 int main(int argc, char **argv)
 {
-    //verifier(argc==1,"Entrez une commande");
-    char *argum[argc];
-    for(int i = 1; i<argc; i++){
-        argum[i-1] = argv[i];
-        printf("tab %d: %s",i,argv[i]);
-    }
-    argum[argc-1] = NULL;
-
-    pid_t pid = fork ();
-    if (pid) { // father
-        printf("*** execution\n");
-        int status;
-        wait (&status);
-        printf ("retour enfant : %d\n", WEXITSTATUS (status));
-    } else {//child
-        execvp(argum[0],argum);
+    printf("*** execution\n");
+    
+    if(fork()==0){//child
+        execvp(argv[1],argv+1);//ou &argv[1]
         perror("exec");
-        return 0;
+        exit(1);
     }
+
+    int status;
+    wait(&status);
+    printf ("*** code de retour : %d\n", valeurStatus(status));
     return 0;
+
 }

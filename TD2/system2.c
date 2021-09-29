@@ -20,7 +20,7 @@ void verifier(int cond, char *s)
 int main(int argc, char **argv)
 {
     char buf[10];
-    char dir[50];
+    char dir[100];
     do{
         getcwd(dir, sizeof(dir));
         printf("Priscilla@cmd:%s$ ",dir);
