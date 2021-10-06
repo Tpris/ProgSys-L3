@@ -32,32 +32,19 @@ int main(int argc, char **argv)
   int tube[2];
   pipe (tube);
 
-  pid_t p1,p2;
-  if ((p1=fork ()) == 0) {
-    close (tube[0]);
-    dup2 (tube[1], 1); close (tube[1]);
-    execlp(argv[1],argv[1],NULL);
-    perror("exec");
-    exit(1);
-  } 
-  if((p2=fork())==0) { 
-    close (tube[1]);
-    dup2 (tube[0], 0); close (tube[0]);
-    execvp(argv[2],argv+2);
-    perror("exec2");
-    exit(1);
-  }
+  //Question 1.2
+  // for(int i = 1;;i++){
+  //   printf("%d\n",i);
+  //   write(tube[1],&i,1);
+  // }
+
+  //Question 1.3 : return 141 = 128+13 : signal 13 = SIGPIPE
   close(tube[0]);
-  close(tube[1]);
-  int status, status2;
+  char c = 'e';
+  write(tube[1],&c,1);
+  printf("%s\n",c);
 
-  waitpid(p1,&status,0); 
-  waitpid(p2,&status2,0);
-
-  int s1 = valeurStatus(status);
-  if(s1!=0) return s1;
-
-  return valeurStatus(status2);
+  return 0;
 
 }
 
