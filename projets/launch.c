@@ -1,12 +1,39 @@
-#include <fcntl.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+// $ ./launch <mode> <timeout> <test1> <test2> [...]
+
+/* a very very simple test framework */
+
+#define _GNU_SOURCE
 #include <sys/wait.h>
-#include <time.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+#define EXIT_TIMEOUT 124
+#define EXIT_INVALID 127
+#define MAXSTR 255
+
+void print_status(int rank, char* cmd, int wstatus) {
+  static char strstatus[MAXSTR];
+  if (WIFEXITED(wstatus)) {
+    int status = WEXITSTATUS(wstatus);
+    if (status == EXIT_SUCCESS)
+      snprintf(strstatus, MAXSTR, "SUCCESS (exit %d)", status);
+    else if (status == EXIT_TIMEOUT)
+      snprintf(strstatus, MAXSTR, "TIMEOUT");
+    else if (status == EXIT_INVALID)
+      snprintf(strstatus, MAXSTR, "INVALID");
+    else
+      snprintf(strstatus, MAXSTR, "FAILURE (exit %d)", status);
+  } else if (WIFSIGNALED(wstatus)) {
+    int sig = WTERMSIG(wstatus);
+    snprintf(strstatus, MAXSTR, "KILLED (signal %d)", sig);
+  } else
+    snprintf(strstatus, MAXSTR, "UNDEFINED");
+
+  printf("Test #%d: %s => %s\n", rank, cmd, strstatus);
+}
+
+
 
 void verifier(int cond, char *s)
 {
@@ -24,20 +51,20 @@ int valeurStatus(int s){
 }
 
 
-void verifTime(void (*f)(void), int timeout){
-    if(!timeout){
-        time_t * t1;
-        time(t1);
-        f();
-        time_t * t2;
-        time(t2);
-        if(difftime(t1,t2)>timeout) return 124;
-    } else {
-        f();
-    }
-}
+// void verifTime(void (*f)(void), int timeout){
+//     if(!timeout){
+//         time_t * t1;
+//         time(t1);
+//         f();
+//         time_t * t2;
+//         time(t2);
+//         if(difftime(t1,t2)>timeout) return 124;
+//     } else {
+//         f();
+//     }
+// }
 
-void sequentiel(int nbTests, char **tests){
+void paralelle(int nbTests, char **tests){
     for(int i = 0; i<nbTests; i++){
         pid_t p;
         if((p=fork())==0){
@@ -48,8 +75,20 @@ void sequentiel(int nbTests, char **tests){
     }
 }
 
-void paralelle(int nbTests, char **tests){
-    
+void sequentiel(int nbTests, char **tests){
+    if(nbTests>0){
+        pid_t p;
+        if((p=fork())==0){
+            sequentiel(nbTests-1,tests+1);
+            exit(0);
+        }
+        int status;
+        waitpid(p,&status,0); 
+        execlp(tests[0],tests[0],NULL);
+        perror(tests[0]);
+        exit(EXIT_FAILURE);
+    }
+    return 0;
 }
 
 int main(int argc, char **argv)
