@@ -8,13 +8,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include <fcntl.h>
+
 #define EXIT_TIMEOUT 124
 #define EXIT_INVALID 127
 #define MAXSTR 255
 
-void print_status(int rank, char* cmd, int wstatus) {
+void print_status(int rank, char *cmd, int wstatus)
+{
   static char strstatus[MAXSTR];
-  if (WIFEXITED(wstatus)) {
+  if (WIFEXITED(wstatus))
+  {
     int status = WEXITSTATUS(wstatus);
     if (status == EXIT_SUCCESS)
       snprintf(strstatus, MAXSTR, "SUCCESS (exit %d)", status);
@@ -24,85 +28,64 @@ void print_status(int rank, char* cmd, int wstatus) {
       snprintf(strstatus, MAXSTR, "INVALID");
     else
       snprintf(strstatus, MAXSTR, "FAILURE (exit %d)", status);
-  } else if (WIFSIGNALED(wstatus)) {
+  }
+  else if (WIFSIGNALED(wstatus))
+  {
     int sig = WTERMSIG(wstatus);
     snprintf(strstatus, MAXSTR, "KILLED (signal %d)", sig);
-  } else
+  }
+  else
     snprintf(strstatus, MAXSTR, "UNDEFINED");
 
   printf("Test #%d: %s => %s\n", rank, cmd, strstatus);
 }
 
-
-
 void verifier(int cond, char *s)
 {
-    if (!cond)
-    {
-        perror(s);
-        exit(EXIT_FAILURE);
-    }
-}
-
-int valeurStatus(int s){
-  if(WIFSIGNALED(s)) return WTERMSIG(s)+128;
-    
-    return WEXITSTATUS (s);
-}
-
-
-// void verifTime(void (*f)(void), int timeout){
-//     if(!timeout){
-//         time_t * t1;
-//         time(t1);
-//         f();
-//         time_t * t2;
-//         time(t2);
-//         if(difftime(t1,t2)>timeout) return 124;
-//     } else {
-//         f();
-//     }
-// }
-
-void paralelle(int nbTests, char **tests){
-    for(int i = 0; i<nbTests; i++){
-        pid_t p;
-        if((p=fork())==0){
-            execlp(tests[i], tests[i],NULL);
-            perror(tests[i]);
-            exit(1);
-        }
-    }
-}
-
-void sequentiel(int nbTests, char **tests){
-    if(nbTests>0){
-        pid_t p;
-        if((p=fork())==0){
-            sequentiel(nbTests-1,tests+1);
-            exit(0);
-        }
-        int status;
-        waitpid(p,&status,0); 
-        execlp(tests[0],tests[0],NULL);
-        perror(tests[0]);
-        exit(EXIT_FAILURE);
-    }
-    return 0;
+  if (!cond)
+  {
+    perror(s);
+    exit(EXIT_FAILURE);
+  }
 }
 
 int main(int argc, char **argv)
 {
-    verifier(argc >= 3,"arguments manquants");
-    int mode = argv[1];
-    verifier(mode=="P" || mode=='S', "Entrez 'P' ou 'S' pour le mode");
-    int timeout = atoi(argv[2]);
+  verifier(argc >= 3, "arguments manquants");
+  char mode = argv[1][0];
+  verifier((mode == 'P' || mode == 'S') && !argv[1][1], "Entrez 'P' ou 'S' pour le mode");
+  int timeout = atoi(argv[2]);
 
-    if(mode == "P"){
-        verifTime();
+  pid_t p[argc - 3];
+  int status[argc - 3];
+  for (int i = 0; i < argc - 3; i++)
+  {
+    if ((p[i] = fork()) == 0)
+    {
+      char name[sizeof(i) + 4];
+      sprintf(name, "%d.log", i);
+      int sortie = open(name, O_WRONLY | O_TRUNC | O_CREAT, 0640);
+      dup2(sortie, 2); //close(sortie);
+      // dup2(2, 1); 
+      dup2(sortie, 1);
+      close(sortie);
+      execlp(argv[i + 3], argv[i + 3], NULL);
+      perror(argv[i + 3]);
+      exit(EXIT_INVALID);
     }
-    else if (mode=="S"){
-
+    if (mode == 'S')
+      waitpid(p[i], &status[i], 0);
+  }
+  if (mode == 'P') {
+    for (int i = 0; i < argc - 3; i++)
+    {
+      waitpid(p[i], &status[i], 0);
     }
-
+  }
+  
+  for (int i = 0; i < argc - 3; i++)
+  {
+    print_status(i, argv[i + 3], status[i]);
+  }
+  return 0;
 }
