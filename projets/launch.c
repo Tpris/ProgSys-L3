@@ -9,6 +9,7 @@
 #include <stdio.h>
 
 #include <fcntl.h>
+#include <signal.h>
 
 #define EXIT_TIMEOUT 124
 #define EXIT_INVALID 127
@@ -49,6 +50,10 @@ void verifier(int cond, char *s)
   }
 }
 
+void handlerTimeOut( int sig ){
+  exit(EXIT_TIMEOUT);
+}
+
 int main(int argc, char **argv)
 {
   verifier(argc >= 3, "arguments manquants");
@@ -65,20 +70,31 @@ int main(int argc, char **argv)
       char name[sizeof(i) + 4];
       sprintf(name, "%d.log", i);
       int sortie = open(name, O_WRONLY | O_TRUNC | O_CREAT, 0640);
-      dup2(sortie, 2); //close(sortie);
-      // dup2(2, 1); 
+      dup2(sortie, 2); 
       dup2(sortie, 1);
       close(sortie);
+
+      struct sigaction time;
+      time.sa_handler = handlerTimeOut;
+      sigaction(SIGALRM,&time,0);
+
       execlp(argv[i + 3], argv[i + 3], NULL);
       perror(argv[i + 3]);
       exit(EXIT_INVALID);
     }
-    if (mode == 'S')
+    if (mode == 'S'){
+      if(timeout){
+        sleep(timeout);
+        kill(p[i],SIGALRM);
+      }
       waitpid(p[i], &status[i], 0);
+    }
   }
   if (mode == 'P') {
+    if(timeout) sleep(timeout);
     for (int i = 0; i < argc - 3; i++)
     {
+      if(timeout) kill(p[i],SIGALRM);
       waitpid(p[i], &status[i], 0);
     }
   }
