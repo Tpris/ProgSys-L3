@@ -11,6 +11,12 @@
 #include <fcntl.h>
 #include <signal.h>
 
+#include <stdio.h> 
+#include <unistd.h> 
+#include <stdlib.h> 
+#include <signal.h> 
+#include <sys/types.h>
+
 #define EXIT_TIMEOUT 124
 #define EXIT_INVALID 127
 #define MAXSTR 255
@@ -51,6 +57,7 @@ void verifier(int cond, char *s)
 }
 
 void handlerTimeOut( int sig ){
+  printf("signal %d\n", sig); 
   exit(EXIT_TIMEOUT);
 }
 
@@ -67,16 +74,18 @@ int main(int argc, char **argv)
   {
     if ((p[i] = fork()) == 0)
     {
-      char name[sizeof(i) + 4];
-      sprintf(name, "%d.log", i);
-      int sortie = open(name, O_WRONLY | O_TRUNC | O_CREAT, 0640);
-      dup2(sortie, 2); 
-      dup2(sortie, 1);
-      close(sortie);
+      // char name[sizeof(i) + 4];
+      // sprintf(name, "%d.log", i);
+      // int sortie = open(name, O_WRONLY | O_TRUNC | O_CREAT, 0640);
+      // dup2(sortie, 2); 
+      // dup2(sortie, 1);
+      // close(sortie);
 
       struct sigaction time;
       time.sa_handler = handlerTimeOut;
-      sigaction(SIGALRM,&time,0);
+      sigemptyset (&time.sa_mask);
+      time.sa_flags = 0;
+      int t = sigaction(SIGALRM,&time,NULL);
 
       execlp(argv[i + 3], argv[i + 3], NULL);
       perror(argv[i + 3]);
