@@ -15,21 +15,6 @@ void verifier(int cond, char *s){
   }
 }
 
-// void afficher(int * entree, int * sortie){
-//   char c;
-//   while (read(entree, &c, 1) != 0){
-//     printf("%c", c);
-//     *sortie = c;
-//   }
-      
-// }
-// void ecrire(int *entree, int *sortie, char* name){
-//   int out = open(name, O_WRONLY || O_TRUNC || O_CREAT, 0640);
-
-// }
-
-
-
 int main(int argc, char *argv[])
 {
     verifier(argc>=3, "Arguments manquant");
