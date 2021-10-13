@@ -13,19 +13,14 @@
 
 #define pprintf(format, ...) printf ("[PID %d] " format, getpid(), ##__VA_ARGS__)
 
-
-int cpt = 0;
-
 int emetteur(int pere, int argc, char * argv[]) {
   int k = atoi(argv[1]);
 
   sleep(1); 
 
-  for(int i = 0 ; i < k ; i++) {
+  for(int i = 0 ; i < k ; i++) 
     for(int j = 2; j < argc; j++){
       kill(pere,atoi(argv[j]));
-      
-    }
   }
 
   //kill(pere,9);
@@ -39,23 +34,23 @@ void my_sig_handler (int sig)
 }
 
 int recepteur(int fils) {
-  pprintf("récepteur : %d\n", getpid());
-  fflush(stdout);
+  printf("récepteur : %d\n", getpid());
 
   // installation du handler pour tous les signaux non RT  
-  struct sigaction sa;
-  sa.sa_flags = 0;
-  sigemptyset (&sa.sa_mask);
-  sa.sa_handler = my_sig_handler;
 
-  for(int sig = 3 ; sig < NSIGNORT ; sig++) {
-    if(sig!=0 && sig != 9 && sig != 19){
-    //sigaction( , , ); 
-      int err = sigaction (sig, &sa, NULL);
-      if(err==-1){
-        fprintf(stderr,"%d;%s\n",sig,strerror(errno));
+    struct sigaction sa;
+    sa.sa_flags = 0;
+    sigemptyset (&sa.sa_mask);
+    sa.sa_handler = my_sig_handler;
+
+    for(int sig = 0 ; sig < NSIGNORT ; sig++) {
+      if(sig!=0 && sig != 9 && sig != 19 && sig != 2){
+      //sigaction( , , ); 
+        int err = sigaction (sig, &sa, NULL);
+        if(err==-1){
+          fprintf(stderr,"%d;%s\n",sig,strerror(errno));
+        }
       }
-    }
 
   }
     

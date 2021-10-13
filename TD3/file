@@ -1,14 +1,11 @@
 total 144
--rw-rw-r-- 1 priscilla priscilla    48 oct.   7 07:17 cat
--rwxrwxr-x 1 priscilla priscilla 17088 oct.   7 07:17 faux-pipe
--rw-rw-r-- 1 priscilla priscilla  2485 oct.   7 07:17 faux-pipe.c
--rwxrwxr-x 1 priscilla priscilla 17040 oct.   6 07:13 faux-pipe.o
--rw-r----- 1 priscilla priscilla     0 oct.  13 05:59 file
--rwxrwxr-x 1 priscilla priscilla 17160 oct.  13 05:59 log
--rw-rw-r-- 1 priscilla priscilla  1140 oct.  13 05:59 log.c
--rw-rw-r-- 1 priscilla priscilla    52 oct.   7 07:17 tmp
--rwxrwxr-x 1 priscilla priscilla 17088 oct.   7 07:17 vrai-pipe
--rwxrwxr-x 1 priscilla priscilla 16936 oct.   7 07:17 vrai-pipe2
--rw-rw-r-- 1 priscilla priscilla  1132 oct.   7 07:17 vrai-pipe2.c
--rw-rw-r-- 1 priscilla priscilla  1405 oct.   7 07:17 vrai-pipe.c
--rwxrwxr-x 1 priscilla priscilla 17160 oct.   6 07:31 vrai-pipe.o
+-rw-r----- 1 prtissot grp30001    48 oct.   6 10:00 cat
+-rwxr-xr-x 1 prtissot grp30001 17088 oct.   6 10:54 faux-pipe
+-rw-r--r-- 1 prtissot grp30001  2485 oct.   6 11:04 faux-pipe.c
+-rwxr-xr-x 1 prtissot grp30001 17048 oct.  13 10:36 log
+-rw-r--r-- 1 prtissot grp30001  1457 oct.  13 10:36 log.c
+-rw------- 1 prtissot grp30001    52 oct.   6 10:54 tmp
+-rwxr-xr-x 1 prtissot grp30001 17088 oct.   6 12:02 vrai-pipe
+-rwxr-xr-x 1 prtissot grp30001 16936 oct.   6 12:16 vrai-pipe2
+-rw-r--r-- 1 prtissot grp30001  1132 oct.   6 12:20 vrai-pipe2.c
+-rw-r--r-- 1 prtissot grp30001  1405 oct.   6 12:02 vrai-pipe.c
