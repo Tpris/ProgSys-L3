@@ -15,20 +15,30 @@ void verifier(int cond, char *s){
   }
 }
 
+// void afficher(int * entree, int * sortie){
+//   char c;
+//   while (read(entree, &c, 1) != 0){
+//     printf("%c", c);
+//     *sortie = c;
+//   }
+      
+// }
+// void ecrire(int *entree, int *sortie, char* name){
+//   int out = open(name, O_WRONLY || O_TRUNC || O_CREAT, 0640);
+
+// }
+
 
 
 int main(int argc, char *argv[])
 {
     verifier(argc>=3, "Arguments manquant");
-    int out = open(argv[1], O_WRONLY || O_TRUNC || O_CREAT, 0640);
+    int out = open(argv[1], O_WRONLY | O_TRUNC | O_CREAT, 0640);
+    verifier(out != -1, argv[1]);
 
     int tube[2];
     pipe (tube);
 
-    int sortie = dup(1);
-
-
-    // manip fichier 
     if(fork()==0){
       close (tube[0]);
       dup2 (tube[1], STDOUT_FILENO); close (tube[1]);
@@ -36,24 +46,14 @@ int main(int argc, char *argv[])
         perror("exec");
         exit(1);
     }
-
-     if (fork() == 0)
-     {
- 
-       close(tube[1]); /* close write side */
- 
-       /* read some data and print the result on screen */
-       while (read(tube[0], out, 1) != 0)
-         printf("%s", out);
- 
-       close(tube[0]); /* close the pipe */
-     }
-
-    // wait(0);
-    // close (tube[1]);
-    // //dup2 (tube[R], STDIN_FILENO); close (tube[R]);
-    // write(sortie,tube,sizeof(tube));
-    // //printf("%s",tube[0]);
+    close(tube[1]);
+    char c;
+    while (read(tube[0], &c, 1) != 0){ 
+      write(1,&c,1);
+      write(out,&c,1);
+    }
+      
+    close(tube[0]); 
 
     return 0;
     
