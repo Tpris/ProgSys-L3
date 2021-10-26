@@ -16,7 +16,7 @@
 int emetteur(int pere, int argc, char * argv[]) {
   int k = atoi(argv[1]);
 
-  sleep(1); 
+  //sleep(1); 
 
   for(int i = 0 ; i < k ; i++) 
     for(int j = 2; j < argc; j++){
@@ -42,6 +42,8 @@ int recepteur(int fils) {
   sigemptyset (&sa.sa_mask);
   sa.sa_handler = my_sig_handler;
 
+  sigaction(SIGINT,&sa,NULL);
+
   for(int sig = 0 ; sig < NSIGNORT ; sig++) {
     if(sig!=0 && sig != 9 && sig != 19 && sig != 2){ 
       int err = sigaction (sig, &sa, NULL);
@@ -51,7 +53,11 @@ int recepteur(int fils) {
     }
 
   }
-    
+
+  sigset_t m;
+  sigfillset(&m);
+  sigprocmask(SIG_UNBLOCK, &m, NULL);
+
   while(1) 
     pause();
   
@@ -60,10 +66,17 @@ int recepteur(int fils) {
 
 
 int main(int argc, char *argv[]){
-  pid_t pid = fork();  
-  if (pid == 0)
+   
+  sigset_t m;
+  sigfillset(&m);
+  sigprocmask(SIG_SETMASK, &m, NULL);
+
+  pid_t pid = fork();
+  if (pid == 0){
+    sigprocmask(SIG_UNBLOCK,&m,NULL);
     emetteur(getppid(),argc,argv);
-  else
+    
+  }else
     recepteur(pid);  
 }
 
@@ -78,4 +91,26 @@ int main(int argc, char *argv[]){
  * Dans le handler on a mis un tableau de compteur pour chaque signal. Il est en static et dans le 
  * print on a fait ++nb[sig] pour que ça ajoute 1 et que ça affiche le résultat contrairement à 
  * nb[sig]++ qui fait l'inverse.
+ * 
+ * 
+ * 
+ * 
+ * PERE
+ * sigpropmask
+ * fork()
+ * |    \
+ * |    sigpropmask
+ * |      |
+ * |    kill
+ * |    /
+ * |----
+ * sigpropmask
+ * 
+ * on ut sig prop mask
+ * ________
+ * |  _    |
+ * | |_|   |
+ * ----------
+ * | |  
+ * 
  **/
