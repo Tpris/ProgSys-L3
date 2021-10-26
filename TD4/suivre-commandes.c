@@ -39,7 +39,7 @@ char *commandes[NCOMMANDES][10] = {
     {"sleep", "1", NULL},
     {"sleep", "1", NULL},
     {"sleep", "1", NULL},
-    {"sleep", "1", NULL}};
+    {"sleep", "3", NULL}};
     
 
 void modifier_etat(pid_t pid)
@@ -104,7 +104,7 @@ void lancer_commandes()
 
     if (cpid == 0)
     {
-      //execvp(commandes[i][0], commandes[i]);
+      execvp(commandes[i][0], commandes[i]);
       perror(commandes[i][0]);
       abort();
     }
