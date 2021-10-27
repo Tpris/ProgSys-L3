@@ -13,31 +13,57 @@
 #define pprintf(format, ...) printf ("[PID %d] " format, getpid(), ##__VA_ARGS__)
 
 jmp_buf buf;
-int i = 0;
+// volatile int i = 0;
 
-void g(){
-    longjmp(buf,1);
-}
+// void g(){
+//     longjmp(buf,1);
+// }
 
-void traitement(){
-    pprintf("%d\n",i);
-    i++;
-    if(i<10) g();
-}
+// void traitement(){
+//     pprintf("%d\n",i);
+//     i++;
+//     if(i<10) g();
+// }
+
+// void f(){
+//     setjmp(buf); 
+//     traitement();
+// }
+
+// int main(int argc, char *argv[]){
+
+//     // volatile int i = 0; // avec -O3 tjrs 0 donc on met volatile pour ne pas qu'il y ait d'optimisation dessus
+//     // setjmp(buf);
+//     // pprintf("%d\n",i);
+//     // i++;
+//     // if(i<10) longjmp(buf,1);
+
+//     f();
+
+//     return 0;
+// }
 
 void f(){
-    setjmp(buf);
-    traitement();
+    longjump(buf,1);
 }
-
+void g(){
+    setjmp(buf);
+}
 int main(int argc, char *argv[]){
 
-    // setjmp(buf);
-    // pprintf("%d\n",i);
-    // i++;
-    // if(i<10) longjmp(buf,1);
-
+    volatile int i = 0; // avec -O3 tjrs 0 donc on met volatile pour ne pas qu'il y ait d'optimisation dessus
+    g();
+    pprintf("%d\n",i);
+    i++;
+    if(i<10) exit(0);
     f();
 
     return 0;
 }
+
+/**
+ * 
+ * setjmp = struct machin jmp[1] : permet d'avoir l'adresse et l'allocation en mm temps : sauvegarde dans un tab l'ensemble des registres
+ * longjump dépile les fonctions imbriquées
+ * le contexte d'execution de setjump doit tjrs etre actif
+ **/

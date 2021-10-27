@@ -6,25 +6,19 @@
 
 #include "essayer.h"
 
-int valeurStatus(int s){
-  if(WIFSIGNALED(s)) return WTERMSIG(s)+128;
-    
-    return WEXITSTATUS (s);
+struct tmp { void (*fun)(void *); void *parametre; int delai_en_seconde;}
+
+int exe(;;;){
+  struct tmp x= {f,p,delai}
+  essayer(executer_avant_delai,x,SIGALRM);
 }
 
-int executer_avant_delai( void (*fun)(void *), void *parametre, int delai_en_seconde)
+int executer_avant_delai(void *parametre)
 {
-  pid_t p;
-  if((p=fork())==0){
-    alarm(delai_en_seconde);
-    essayer(fun,parametre,SIGALRM);
-  }
+  struct tmp *x = (struct tmp) p;
+  alarm(delai_en_seconde);
+  x->fun(x->p);
+  alarm(0);
+  return r;
   
-  int status;
-  waitpid(p,&status,0);
-
-  //parametre = valeurStatus(status);
-  printf("rep = %d\n",valeurStatus(status));
-
-  return 0;  
 }

@@ -11,34 +11,46 @@
 #include <stdlib.h>
 #include <fcntl.h>
 
+#include <sys/types.h>
+#include <sys/wait.h>
 
 typedef void (*func_t)(void);
 
 jmp_buf buf;
 
 void my_sig_handler(){
-    longjmp(buf,1);
+    siglongjmp(buf,1);
 }
 
 int essayer(void  (*f)(void*), void *p, int sig)
 {
     struct sigaction sa;
+    struct sigaction old;
     sa.sa_flags = 0;
     sigemptyset (&sa.sa_mask);
     sa.sa_handler = my_sig_handler;
-    sigaction(sig,&sa,NULL);
+    sigaction(sig,&sa,&old);
 
-    if(setjmp(buf)==0){
-        // int devNull = open("test",O_WRONLY | O_TRUNC |O_CREAT , 0640);
-        // int tmp = dup(1);
-        // dup2(devNull, 1);
-        // int d = close(devNull); //obligatoire
+    pid_t pid;
+    if((pid=fork())==0){
 
-        f(p);
+        // if(sigsetjmp(buf,1)==0){
+        //     f(p);
+        // }else
+        //     exit(-1);
 
-        // dup2(tmp,1);
-        // close(tmp);
-    }else
+        // exit(0);
+
+        if(sigsetjmp(buf,1)==0){
+            f(p);
+            sigaction(sig,&old,NULL);
+            return 0;
+        }
+        sigaction(sig,&old,NULL);
         return -1;
-    return 0;
+
+    }
+    int status;
+    waitpid(pid,&status,0);
+    return status;
 }

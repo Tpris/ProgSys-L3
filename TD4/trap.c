@@ -3,11 +3,13 @@
 
 volatile char *a=NULL;
 volatile char b='x';
+jmp_buf buf;
 
 void traitant(int s)
 {
   printf("signal %d\n", s);
   a = &b;
+  longjump(buf,1);
 }
 
 int main()

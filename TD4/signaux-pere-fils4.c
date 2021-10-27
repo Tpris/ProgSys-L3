@@ -13,23 +13,35 @@
 
 #define pprintf(format, ...) printf ("[PID %d] " format, getpid(), ##__VA_ARGS__)
 
+pid_t pid;
+sigset_t vide;
+
+void my_sig_handler_USR1 (int sig)
+{
+
+}
+
 void my_sig_handler (int sig)
 {
   static int nb[32];
   pprintf ("%d[%d]\n",sig,++nb[sig]);
-  
+  struct sigaction s;
+  s.sa_flags = 0;
+  sigemptyset (&s.sa_mask);
+  s.sa_handler = my_sig_handler_USR1;
+  sigaction(SIGUSR1,&s,NULL);
+
+  kill(pid,SIGUSR1);
 }
 
-void my_sig_handler_USR1 (int sig)
-{
-  pprintf ("coucou\n");
-}
+
 
 int emetteur(int pere, int argc, char * argv[]) {
 
-  sigset_t m;
-  sigfillset(&m);
-  sigprocmask(SIG_BLOCK,&m,NULL);
+  // sigset_t m;
+  
+  // sigfillset(&m);
+  // sigprocmask(SIG_BLOCK,&m,NULL);
   
   struct sigaction s;
   s.sa_flags = 0;
@@ -40,15 +52,15 @@ int emetteur(int pere, int argc, char * argv[]) {
   int k = atoi(argv[1]);
 
   //sleep(1); 
-  sigset_t new_mask;
-  sigfillset(&new_mask);
-  sigdelset(&new_mask,SIGUSR1);
+  // sigset_t new_mask;
+  // sigfillset(&new_mask);
+  // sigdelset(&new_mask,SIGUSR1);
 
   for(int i = 0 ; i < k ; i++) 
     for(int j = 2; j < argc; j++){
       kill(pere,atoi(argv[j]));
       //pause();
-      //sigsuspend(&new_mask);
+      sigsuspend(&vide);
   }
 
   kill(pere,9);
@@ -76,14 +88,6 @@ int recepteur(int fils) {
     }
   }
 
-  struct sigaction s;
-  s.sa_flags = 0;
-  sigemptyset (&s.sa_mask);
-  s.sa_handler = my_sig_handler_USR1;
-  sigaction(SIGUSR1,&s,NULL);
-
-  kill(fils,SIGUSR1);
-
   sigset_t m;
   sigfillset(&m);
   sigprocmask(SIG_UNBLOCK, &m, NULL);
@@ -99,11 +103,10 @@ int main(int argc, char *argv[]){
    
   sigset_t m;
   sigfillset(&m);
-  sigprocmask(SIG_SETMASK, &m, NULL);
+  sigprocmask(SIG_BLOCK, &m, &vide);
 
-  pid_t pid = fork();
+  pid = fork();
   if (pid == 0){
-    
     emetteur(getppid(),argc,argv);
   }else{
     recepteur(pid);  
