@@ -28,7 +28,7 @@ int valeurStatus(int s){
     return WEXITSTATUS (s);
 }
 
-int essayer(void  (*f)(void*), void *p, int sig)
+int essayer1(void  (*f)(void*), void *p, int sig)
 {
     struct sigaction sa;
     struct sigaction old;
@@ -63,4 +63,18 @@ int essayer(void  (*f)(void*), void *p, int sig)
     // waitpid(pid,&status,0);
     // printf("status : %d\n",valeurStatus(status));
     // return valeurStatus(status);
+}
+
+int essayer(void  (*f)(void*), void *p, int sig)
+{
+    pid_t pid;
+    if((pid=fork())==0){
+
+        exit(essayer1(f,p,sig));
+
+    }
+    int status;
+    waitpid(pid,&status,0);
+    printf("status : %d\n",valeurStatus(status));
+    return valeurStatus(status);
 }
