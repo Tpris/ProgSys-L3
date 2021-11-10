@@ -2,7 +2,7 @@
 #include "distributeur.h"
 
 static int indice = 0;
-pthread_mutex_t m;
+
 int distributeur_suivant()
 {
     pthread_mutex_lock(&m);

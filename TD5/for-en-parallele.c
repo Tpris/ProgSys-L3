@@ -24,12 +24,16 @@ main(int argc, char *argv[])
 
   int n = atoi(argv[1]);
   pthread_t tids[n];
+
+  pthread_mutex_init(&m,NULL);
  
   for(int i = 0; i <n ; i++)
     pthread_create(tids + i, NULL, for_en_parallele, NULL);
 
   for(int i = 0; i <n ; i++)
     pthread_join(tids[i],NULL);
+  
+  pthread_mutex_destroy(&m);
 
   printf("%lu\n",k);
 

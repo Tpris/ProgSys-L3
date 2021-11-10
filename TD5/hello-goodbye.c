@@ -42,9 +42,13 @@ main(int argc, char *argv[])
   int NBTHREADS = atoi (argv[1]);
 
   pthread_t pids[NBTHREADS];
+  // int nb[NBTHREADS];
 
   for (int i = 0; i < NBTHREADS; i++) {
     pthread_create (&pids[i], NULL, Hello, (void *)(intptr_t)i);
+    //CORRECTION DU PROF DE TD
+    // nb[i] = i;
+    // pthread_create (&pids[i], NULL, Hello, nb+i);
   }
 
   for (int i = 0; i < NBTHREADS; i++) {

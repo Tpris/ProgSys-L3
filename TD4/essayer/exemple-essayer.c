@@ -24,13 +24,14 @@ void tutu(void *p)
   printf("fin de tutu\n");
 }
 
+
 int main(int argc, char *argv[])
 {
   printf("* essai de toto : %s\n", essayer(toto, NULL, SIGSEGV) == 0 ? "ok" : "echec");
   printf("* essai de titi : %s\n", essayer(titi, NULL, SIGSEGV) == 0 ? "ok" : "echec");
 
   // cf. dernière question
-  //printf("* essai de tutu : %s\n", essayer(tutu, NULL, SIGSEGV) == 0 ? "ok" : "echec");
+  printf("* essai de tutu : %s\n", essayer(tutu, NULL, SIGSEGV) == 0 ? "ok" : "echec");
   
   printf("Tout va bien non ?\n");
   

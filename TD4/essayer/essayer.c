@@ -18,8 +18,8 @@ typedef void (*func_t)(void);
 
 jmp_buf buf;
 
-void my_sig_handler(){
-    siglongjmp(buf,1);
+void my_sig_handler(int s){
+    siglongjmp(buf,s);
 }
 
 int valeurStatus(int s){
@@ -28,53 +28,29 @@ int valeurStatus(int s){
     return WEXITSTATUS (s);
 }
 
-int essayer1(void  (*f)(void*), void *p, int sig)
+int essayer(void  (*f)(void*), void *p, int sig)
 {
     struct sigaction sa;
     struct sigaction old;
+    jmp_buf oldjmp;
+    *oldjmp = *buf;
     sa.sa_flags = 0;
     sigemptyset (&sa.sa_mask);
     sa.sa_handler = my_sig_handler;
     sigaction(sig,&sa,&old);
 
-    // pid_t pid;
-    // if((pid=fork())==0){
-
-        // if(sigsetjmp(buf,1)==0){
-        //     f(p);
-        //     exit(0);
-        // }else
-        //     exit(EXIT_FAILURE);
-
-        
-
-        if(sigsetjmp(buf,1)==0){
-            f(p);
-            sigaction(sig,&old,NULL);
-            //exit(0);
-            return 0;
-        }
+    int s;
+    if((s=sigsetjmp(buf,1))==0){
+        f(p);
         sigaction(sig,&old,NULL);
-        //exit(1);
-        return 1;
-
-    // }
-    // int status;
-    // waitpid(pid,&status,0);
-    // printf("status : %d\n",valeurStatus(status));
-    // return valeurStatus(status);
-}
-
-int essayer(void  (*f)(void*), void *p, int sig)
-{
-    pid_t pid;
-    if((pid=fork())==0){
-
-        exit(essayer1(f,p,sig));
-
+        raise(s);
+        
+        //return 0;
     }
-    int status;
-    waitpid(pid,&status,0);
-    printf("status : %d\n",valeurStatus(status));
-    return valeurStatus(status);
+    if(s!=sig){
+        *buf = *oldjmp;
+        sigaction(sig,&old,NULL);
+        raise(s);
+    }
+    return 1;
 }

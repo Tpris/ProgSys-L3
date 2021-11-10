@@ -1,0 +1,9 @@
+int main(int argc, char *argv[])
+{
+    struct stat stat;
+    fstat(0, &stat);
+
+    if (!(S_IFREG & stat.st_mode))
+    	exit(1);
+    return tailRegularFile(0, 1, 10);  
+ }
