@@ -16,10 +16,17 @@
 #include <stdlib.h> 
 #include <signal.h> 
 #include <sys/types.h>
+#include <sys/time.h>
 
 #define EXIT_TIMEOUT 124
 #define EXIT_INVALID 127
 #define MAXSTR 255
+
+#define TIME_DIFF(t1, t2) \
+  ((t2.tv_sec - t1.tv_sec) + ((double)(t2.tv_usec - t1.tv_usec)) / 1000000)
+
+
+struct timeval fin;
 
 void print_status(int rank, char *cmd, int wstatus)
 {
@@ -56,10 +63,16 @@ void verifier(int cond, char *s)
   }
 }
 
-void handlerTimeOut( int sig ){
-  printf("signal %d\n", sig); 
-  exit(EXIT_TIMEOUT);
+
+void my_sig_handler(int sig){
+  gettimeofday(&fin,NULL);
 }
+
+int valeurStatus(int s){
+  if(WIFSIGNALED(s)) return WTERMSIG(s);
+  return WEXITSTATUS (s);
+}
+
 
 int main(int argc, char **argv)
 {
@@ -74,43 +87,55 @@ int main(int argc, char **argv)
   {
     if ((p[i] = fork()) == 0)
     {
-      // char name[sizeof(i) + 4];
-      // sprintf(name, "%d.log", i);
-      // int sortie = open(name, O_WRONLY | O_TRUNC | O_CREAT, 0640);
-      // dup2(sortie, 2); 
-      // dup2(sortie, 1);
-      // close(sortie);
+      char name[sizeof(i) + 4];
+      sprintf(name, "%d.log", i);
+      int sortie = open(name, O_WRONLY | O_TRUNC | O_CREAT, 0640);
+      dup2(sortie, 2); 
+      dup2(sortie, 1);
+      close(sortie);
 
       struct sigaction time;
-      time.sa_handler = handlerTimeOut;
+      time.sa_handler = my_sig_handler;
       sigemptyset (&time.sa_mask);
-      time.sa_flags = 0;
-      int t = sigaction(SIGALRM,&time,NULL);
+      time.sa_flags = SA_RESTART;
+      int t = sigaction(SIGCHLD,&time,NULL);
 
+      pid_t p;
+      int s;
+      struct timeval debut;
+      gettimeofday(&debut, NULL);
+      if((p=fork())==0){
       execlp(argv[i + 3], argv[i + 3], NULL);
       perror(argv[i + 3]);
       exit(EXIT_INVALID);
-    }
-    if (mode == 'S'){
+      }
       if(timeout){
         sleep(timeout);
-        kill(p[i],SIGALRM);
+        kill(p,9);
       }
+      waitpid(p, &s, 0);
+      if(s==9 && TIME_DIFF(debut,fin)>=timeout) exit(EXIT_TIMEOUT);
+      if(WIFSIGNALED(s)) raise(WTERMSIG(s));
+      exit(valeurStatus(s));
+
+    }
+    if (mode == 'S'){
       waitpid(p[i], &status[i], 0);
     }
   }
   if (mode == 'P') {
-    if(timeout) sleep(timeout);
     for (int i = 0; i < argc - 3; i++)
     {
-      if(timeout) kill(p[i],SIGALRM);
       waitpid(p[i], &status[i], 0);
     }
   }
-  
   for (int i = 0; i < argc - 3; i++)
   {
     print_status(i, argv[i + 3], status[i]);
+  }
+  for (int i = 0; i < argc - 3; i++)
+  {
+    if(valeurStatus(status[i])!=0) return 1;
   }
   return 0;
 }
