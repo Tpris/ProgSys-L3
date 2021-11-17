@@ -92,7 +92,7 @@ void lancer_commandes()
   /* Lancement */
   for (i = 0; i < NCOMMANDES; i++)
   {
-    sigprocmask(SIG_BLOCK, &m, NULL);
+    sigprocmask(SIG_BLOCK, &m, NULL); // Si fils meurt le pid entré dans le tab est mauvais sans sigBlock
 
     cpid = fork();
     

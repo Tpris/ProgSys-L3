@@ -8,12 +8,15 @@
 #include <string.h>
 #include <signal.h>
 #include <sys/time.h>
+#include <pthread.h>
 
 #define NCOMMANDES 4
 
 // Returns duration in secs
 #define TIME_DIFF(t1, t2) \
   ((t2.tv_sec - t1.tv_sec) + ((double)(t2.tv_usec - t1.tv_usec)) / 1000000)
+
+pthread_mutex_t m;
 
 struct etat
 {
@@ -78,6 +81,7 @@ void lancer_commandes()
   /* Lancement */
   for (i = 0; i < NCOMMANDES; i++)
   {
+    pthread_mutex_lock(&m);
     cpid = fork();
 
     if (cpid == -1)
@@ -98,31 +102,44 @@ void lancer_commandes()
     strcpy(etat_tableau[i].arg, commandes[i][1]);
     etat_tableau[i].en_cours = 1;
     gettimeofday(&etat_tableau[i].debut, NULL);
+
+    pthread_mutex_unlock(&m);
+  }
+}
+
+void *traiter(void *p){
+  pid_t w;
+  while(1){ // à ameliorer avec "bloque toi si je te reveille pas" mais pas vu à la fac
+    w = wait(NULL);
+    if (w > 0){
+      pthread_mutex_lock(&m);
+      modifier_etat(w);
+      pthread_mutex_unlock(&m);
+    }
   }
 }
 
 int main(int argc, char *argv[])
 {
+  pthread_t tid;
+  pthread_create (&tid, NULL, traiter, NULL);
+  pthread_mutex_init(&m,NULL);
 
   lancer_commandes();
 
   for (int cpt = 1; reste_commande(); cpt++)
   {
-    pid_t w;
     char buf[1024];
-
     printf("iteration %d\n", cpt);
-    w = waitpid(0, NULL, WNOHANG);
-    printf("pid = %d\n", w);
-    if (w > 0)
-      modifier_etat(w);
+    
+    
 
     int r = read(0, buf, 1024);
     if (r == -1)
       perror("read");
     afficher_etat();
   }
-
+  pthread_mutex_destroy(&m);
   printf("Tous les processus se sont terminés !\n");
   afficher_etat();
   exit(EXIT_SUCCESS);

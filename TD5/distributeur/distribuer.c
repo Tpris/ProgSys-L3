@@ -8,8 +8,10 @@ const unsigned long MAX = 100 * 1000;
 
 void *for_en_parallele(void *p)
 {
+  // pthread_mutex_lock(&m);
   for(unsigned long i=0; i < MAX; i++)
     distributeur_suivant();
+  // pthread_mutex_unlock(&m);
   return NULL;
 }
 
