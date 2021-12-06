@@ -1,7 +1,0 @@
-./invalid: No such file or directory
-hello world!
-Test #0: ./hello => SUCCESS (exit 0)
-Test #1: ./segfault => KILLED (signal 11)
-Test #2: ./sleep1 => SUCCESS (exit 0)
-Test #3: ./sleep3 => SUCCESS (exit 0)
-Test #4: ./invalid => INVALID
