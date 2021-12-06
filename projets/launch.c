@@ -114,7 +114,7 @@ int main(int argc, char **argv)
         kill(p,9);
       }
       waitpid(p, &s, 0);
-      if(s==9 && TIME_DIFF(debut,fin)>=timeout) exit(EXIT_TIMEOUT);
+      if(timeout && s==9 && TIME_DIFF(debut,fin)>=timeout) exit(EXIT_TIMEOUT);
       if(WIFSIGNALED(s)) raise(WTERMSIG(s));
       exit(valeurStatus(s));
 
