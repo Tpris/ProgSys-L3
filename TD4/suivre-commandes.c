@@ -165,6 +165,6 @@ int main(int argc, char *argv[])
 /**
  * waitpid avec wnohang renvoie 0 si pas de zombie 
  * waitpid sans wnohang : renvoie -1 si pas zombie 
- * => wnohang : version non bloquante
+ * => wnohang : version non bloquante, ne bloque pas si aucun fils ne s'est terminé. n'attend pas vraiment ?
  * 
  **/
