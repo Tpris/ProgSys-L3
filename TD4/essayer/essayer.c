@@ -42,14 +42,11 @@ int essayer(void  (*f)(void*), void *p, int sig)
     int s;
     if((s=sigsetjmp(buf,1))==0){
         f(p);
-        sigaction(sig,&old,NULL);
-        raise(s);
-        
-        //return 0;
     }
     if(s!=sig){
         *buf = *oldjmp;
-        sigaction(sig,&old,NULL);
+        //sigaction(sig,&old,NULL);
+        sigaction(s,&old,NULL);
         raise(s);
         return 0;
     }

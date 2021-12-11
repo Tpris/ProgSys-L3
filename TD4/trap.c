@@ -10,7 +10,7 @@ void traitant(int s)
 {
   printf("signal %d\n", s);
   a = &b;
-  longjmp(buf,1);
+  siglongjmp(buf,1);
 }
 
 int main()
@@ -23,8 +23,8 @@ int main()
   s.sa_flags=0;
   sigaction(SIGSEGV,&s,NULL);
 
-  setjmp(buf);
-  
+  sigsetjmp(buf,SIGSEGV);
+
   x = *a;
 
   printf("fin %c\n",x);
