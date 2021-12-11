@@ -13,53 +13,55 @@
 #define pprintf(format, ...) printf ("[PID %d] " format, getpid(), ##__VA_ARGS__)
 
 jmp_buf buf;
-// volatile int i = 0;
+volatile int i = 0;
 
-// void g(){
-//     longjmp(buf,1);
-// }
-
-// void traitement(){
-//     pprintf("%d\n",i);
-//     i++;
-//     if(i<10) g();
-// }
-
-// void f(){
-//     setjmp(buf); 
-//     traitement();
-// }
-
-// int main(int argc, char *argv[]){
-
-//     // volatile int i = 0; // avec -O3 tjrs 0 donc on met volatile pour ne pas qu'il y ait d'optimisation dessus
-//     // setjmp(buf);
-//     // pprintf("%d\n",i);
-//     // i++;
-//     // if(i<10) longjmp(buf,1);
-
-//     f();
-
-//     return 0;
-// }
-
-void f(){
-    longjump(buf,1);
-}
 void g(){
-    setjmp(buf);
+    longjmp(buf,1);
 }
-int main(int argc, char *argv[]){
 
-    volatile int i = 0; // avec -O3 tjrs 0 donc on met volatile pour ne pas qu'il y ait d'optimisation dessus
-    g();
+void traitement(){
     pprintf("%d\n",i);
     i++;
-    if(i<10) exit(0);
+    if(i<10) g();
+}
+
+void f(){
+    setjmp(buf); 
+    traitement();
+}
+
+int main(int argc, char *argv[]){
+
+    // volatile int i = 0; // avec -O3 tjrs 0 donc on met volatile pour ne pas qu'il y ait d'optimisation dessus
+    // setjmp(buf);
+    // pprintf("%d\n",i);
+    // i++;
+    // if(i<10) longjmp(buf,1);
+
     f();
 
     return 0;
 }
+
+
+
+// void f(){
+//     longjmp(buf,1);
+// }
+// void g(){
+//     setjmp(buf);
+// }
+// int main(int argc, char *argv[]){
+
+//     volatile int i = 0; // avec -O3 tjrs 0 donc on met volatile pour ne pas qu'il y ait d'optimisation dessus
+//     //g();
+//     setjmp(buf);
+//     pprintf("%d\n",i);
+//     i++;
+//     if(i<10) f();
+
+//     return 0;
+// }
 
 /**
  * 

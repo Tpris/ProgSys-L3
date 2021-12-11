@@ -1,5 +1,6 @@
 #include <signal.h>
 #include <stdio.h>
+#include <setjmp.h>
 
 volatile char *a=NULL;
 volatile char b='x';
@@ -9,7 +10,7 @@ void traitant(int s)
 {
   printf("signal %d\n", s);
   a = &b;
-  longjump(buf,1);
+  longjmp(buf,1);
 }
 
 int main()
@@ -22,6 +23,8 @@ int main()
   s.sa_flags=0;
   sigaction(SIGSEGV,&s,NULL);
 
+  setjmp(buf);
+  
   x = *a;
 
   printf("fin %c\n",x);

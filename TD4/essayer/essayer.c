@@ -51,6 +51,7 @@ int essayer(void  (*f)(void*), void *p, int sig)
         *buf = *oldjmp;
         sigaction(sig,&old,NULL);
         raise(s);
+        return 0;
     }
     return 1;
 }
