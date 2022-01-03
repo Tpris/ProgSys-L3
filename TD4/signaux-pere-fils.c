@@ -57,7 +57,7 @@ int recepteur(int fils) {
   sa.sa_handler = my_sig_handler;
 
   for(int sig = 0 ; sig < NSIGNORT ; sig++) {
-    if(sig!=0 && sig != 2 && sig != 9 && sig != 19 && sig != 17){
+    if(sig!=0 && sig != 2 && sig != 9 && sig != 19){
       int err = sigaction (sig, &sa, NULL);
       if(err==-1){
         printf("%d;%s\n",sig,strerror(errno));
